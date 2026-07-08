@@ -1,10 +1,5 @@
-import type { Metadata } from "next";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "Mapache 3D GT",
-  description: "Impresión 3D personalizada en Guatemala.",
-};
+import { CartProvider } from "@/features/cart/context/CartContext";
 
 export default function RootLayout({
   children,
@@ -13,7 +8,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }

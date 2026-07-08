@@ -1,131 +1,167 @@
-import Image from "next/image";
+"use client";
 
-const products = [
-  { name: "Llavero personalizado", price: "Q35", icon: "🦝" },
-  { name: "Imán decorativo", price: "Q25", icon: "🧲" },
-  { name: "Figura 3D", price: "Q85", icon: "🚀" },
+import Image from "next/image";
+import Link from "next/link";
+import { ReactNode, useEffect, useState } from "react";
+import { LogIn, ShoppingCart, User } from "lucide-react";
+
+type Props = {
+  children: ReactNode;
+};
+
+const menuItems = [
+  { label: "Productos", href: "/productos", icon: "📦", text: "Descubre accesorios 3D" },
+  { label: "Mercado", href: "#mercado", icon: "🛒", text: "Productos populares" },
+  { label: "Tendencias", href: "#tendencias", icon: "📈", text: "Lo más nuevo" },
+  { label: "Personaliza", href: "#personaliza", icon: "🖨️", text: "A tu medida" },
+  { label: "Haz tu pedido", href: "#pedido", icon: "🚚", text: "Toda Guatemala" },
 ];
 
-export function LandingPage() {
-  return (
-    <main className="min-h-screen overflow-hidden bg-[#050509] text-white">
-      <section className="relative min-h-screen px-6 py-6">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,102,0,0.25),transparent_30%),radial-gradient(circle_at_80%_10%,rgba(217,70,239,0.25),transparent_35%),radial-gradient(circle_at_50%_80%,rgba(0,200,255,0.15),transparent_35%)]" />
+export function LandingPage({ children }: Props) {
+  const [showLogo, setShowLogo] = useState(true);
 
-        <div className="relative mx-auto max-w-7xl">
-          <header className="flex items-center justify-between rounded-3xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur">
-            <div className="flex items-center gap-4">
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLogo(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <main className="min-h-screen overflow-hidden bg-black text-white">
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_16%_25%,rgba(168,85,247,0.22),transparent_30%),radial-gradient(circle_at_86%_20%,rgba(6,182,212,0.22),transparent_32%),radial-gradient(circle_at_52%_95%,rgba(249,115,22,0.18),transparent_38%)]" />
+
+      <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-black/85 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1700px] items-center justify-between px-8 py-4">
+          <Link href="/" className="leading-none">
+            <div className="text-4xl font-black tracking-tight md:text-5xl">
+              <span className="bg-gradient-to-r from-white via-violet-300 to-cyan-300 bg-clip-text text-transparent">
+                MAPACHE
+              </span>{" "}
+              <span className="bg-gradient-to-r from-orange-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent">
+                3D
+              </span>
+            </div>
+            <p className="mt-1 text-xs font-bold tracking-[0.45em] text-white/40">
+              PRINT • CREATE • DELIVER
+            </p>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/carrito"
+              className="rounded-full border border-cyan-400/30 bg-black px-4 py-3 text-cyan-200 shadow-[0_0_25px_rgba(34,211,238,0.20)] transition hover:bg-cyan-400/10"
+            >
+              <ShoppingCart size={22} />
+            </Link>
+
+            <Link
+              href="/login"
+              className="hidden items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-bold transition hover:bg-white/10 md:flex"
+            >
+              <LogIn size={17} />
+              Login
+            </Link>
+
+            <Link
+              href="/register"
+              className="hidden items-center gap-2 rounded-full bg-gradient-to-r from-orange-400 to-fuchsia-500 px-5 py-3 text-sm font-black text-black shadow-[0_0_25px_rgba(249,115,22,0.35)] transition hover:scale-105 md:flex"
+            >
+              <User size={17} />
+              Sign in
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <section className="relative z-10 flex min-h-screen flex-col px-4 pb-34 pt-24 md:px-8">
+        <div className="mx-auto grid w-full max-w-[1750px] flex-1 items-center gap-4 lg:grid-cols-[160px_1fr_170px] xl:grid-cols-[180px_1fr_190px]">
+          <aside className="hidden space-y-8 lg:block">
+            <InfoItem icon="⚙️" title="Impresión 3D" text="Alta calidad en cada detalle" />
+            <InfoItem icon="🍃" title="Materiales" text="PLA resistente y ecológico" />
+            <InfoItem icon="🛡️" title="Calidad" text="Acabados perfectos" />
+          </aside>
+
+          <div className="relative flex min-h-[620px] items-center justify-center px-2">
+            <div
+              className={`absolute w-full max-w-[980px] transition-all duration-1000 xl:max-w-[1100px] 2xl:max-w-[1180px] ${
+                showLogo
+                  ? "opacity-100 scale-100"
+                  : "pointer-events-none opacity-0 scale-95"
+              }`}
+            >
               <Image
                 src="/images/logo-mapache3d.png"
-                alt="Mapache 3D GT"
-                width={76}
-                height={76}
-                className="rounded-2xl"
+                alt="Mapache 3D"
+                width={1400}
+                height={900}
+                className="mx-auto h-auto max-h-[66vh] w-full object-contain"
                 priority
               />
-
-              <div>
-                <h1 className="text-2xl font-black">Mapache 3D GT</h1>
-                <p className="text-sm text-white/60">
-                  Traemos a la realidad tus ideas
-                </p>
-              </div>
             </div>
 
-            <nav className="hidden gap-6 text-sm text-white/70 md:flex">
-              <a href="#productos" className="hover:text-white">Productos</a>
-              <a href="#mercado" className="hover:text-white">Mercado</a>
-              <a href="#tendencias" className="hover:text-white">Tendencias</a>
-              <a href="#pedido" className="hover:text-white">Haz tu pedido</a>
-            </nav>
-
-            <a
-              href="#pedido"
-              className="rounded-full bg-orange-500 px-5 py-2 text-sm font-bold text-black"
+            <div
+              className={`w-full transition-all duration-1000 ${
+                showLogo
+                  ? "pointer-events-none translate-y-8 opacity-0"
+                  : "translate-y-0 opacity-100"
+              }`}
             >
-              Cotizar
-            </a>
-          </header>
-
-          <div className="grid min-h-[calc(100vh-110px)] items-center gap-12 py-20 lg:grid-cols-2">
-            <div>
-              <div className="mb-6 inline-flex rounded-full border border-orange-400/30 bg-orange-500/10 px-4 py-2 text-sm text-orange-200">
-                Fabricación digital personalizada
-              </div>
-
-              <h2 className="max-w-3xl text-5xl font-black leading-tight md:text-7xl">
-                Tus ideas convertidas en{" "}
-                <span className="bg-gradient-to-r from-orange-400 via-fuchsia-400 to-cyan-300 bg-clip-text text-transparent">
-                  piezas 3D
-                </span>
-              </h2>
-
-              <p className="mt-6 max-w-xl text-lg text-white/60">
-                Creamos llaveros, imanes, figuras, accesorios y productos
-                personalizados en PLA con envíos a toda Guatemala.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-4">
-                <a
-                  href="#productos"
-                  className="rounded-2xl bg-white px-6 py-3 font-bold text-black"
-                >
-                  Ver productos
-                </a>
-                <a
-                  href="#pedido"
-                  className="rounded-2xl border border-white/15 px-6 py-3 font-bold text-white hover:bg-white/10"
-                >
-                  Haz tu pedido
-                </a>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute -inset-8 rounded-full bg-fuchsia-500/20 blur-3xl" />
-              <div className="relative rounded-[2rem] border border-white/10 bg-white/10 p-5 shadow-2xl backdrop-blur">
-                <Image
-                  src="/images/logo-mapache3d.png"
-                  alt="Logo Mapache 3D GT"
-                  width={900}
-                  height={900}
-                  className="h-auto w-full rounded-[1.5rem]"
-                  priority
-                />
-              </div>
+              {children}
             </div>
           </div>
 
-          <section id="productos" className="pb-20">
-            <h3 className="text-3xl font-black">Productos destacados</h3>
-            <p className="mt-2 text-white/50">
-              Cards iniciales para definir colores y estilo visual.
-            </p>
-
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
-              {products.map((product) => (
-                <div
-                  key={product.name}
-                  className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur transition hover:-translate-y-1 hover:bg-white/10"
-                >
-                  <div className="grid aspect-square place-items-center rounded-2xl bg-black/40 text-7xl">
-                    {product.icon}
-                  </div>
-
-                  <h4 className="mt-5 text-xl font-black">{product.name}</h4>
-                  <p className="mt-2 text-2xl font-black text-orange-400">
-                    {product.price}
-                  </p>
-
-                  <button className="mt-5 w-full rounded-2xl bg-orange-500 px-4 py-3 font-bold text-black">
-                    Agregar a la carreta
-                  </button>
-                </div>
-              ))}
+          <aside className="hidden lg:block">
+            <div className="rounded-[2rem] border border-cyan-400/40 bg-cyan-400/10 p-5 text-center shadow-[0_0_30px_rgba(34,211,238,0.25)]">
+              <div className="text-5xl">📍</div>
+              <h3 className="mt-4 text-xl font-black">En toda Guatemala</h3>
+              <p className="mt-2 text-sm text-white/60">
+                Envío fijo Q42 a todo el país.
+              </p>
             </div>
-          </section>
+          </aside>
         </div>
       </section>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/90 px-5 py-4 backdrop-blur-xl">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-5 gap-4 text-center">
+          {menuItems.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="group rounded-[1.6rem] border border-white/10 bg-black px-3 py-4 shadow-[0_0_25px_rgba(168,85,247,0.16)] transition hover:-translate-y-1 hover:border-fuchsia-400/70 hover:bg-white/5"
+            >
+              <div className="text-3xl transition group-hover:scale-110">
+                {item.icon}
+              </div>
+              <div className="mt-2 text-sm font-black uppercase text-white">
+                {item.label}
+              </div>
+              <p className="mt-1 hidden text-xs text-white/50 md:block">
+                {item.text}
+              </p>
+            </Link>
+          ))}
+        </div>
+      </nav>
     </main>
+  );
+}
+
+function InfoItem({
+  icon,
+  title,
+  text,
+}: {
+  icon: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 border-b border-white/10 pb-5">
+      <div className="text-4xl">{icon}</div>
+      <div>
+        <h3 className="text-lg font-black uppercase">{title}</h3>
+        <p className="mt-1 text-xs text-white/60">{text}</p>
+      </div>
+    </div>
   );
 }
