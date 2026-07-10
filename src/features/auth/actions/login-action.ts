@@ -1,10 +1,14 @@
-"use server";
+﻿"use server";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+
 export async function loginAction(formData: FormData) {
-  const email = String(formData.get("email") || "");
+  const email = String(formData.get("email") || "")
+    .trim()
+    .toLowerCase();
+
   const password = String(formData.get("password") || "");
 
   if (!email || !password) {
@@ -13,14 +17,32 @@ export async function loginAction(formData: FormData) {
 
   const supabase = await createSupabaseServerClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const {
+    data: { user },
+    error: signInError,
+  } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) {
+  if (signInError || !user) {
     redirect("/login?error=invalid_credentials");
   }
 
-  redirect("/admin");
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    await supabase.auth.signOut();
+    redirect("/login?error=profile_error");
+  }
+
+  if (profile?.role === "admin") {
+    redirect("/admin");
+  }
+
+  redirect("/account");
 }

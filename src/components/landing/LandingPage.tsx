@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useEffect, useState } from "react";
-import { LogIn, ShoppingCart, User } from "lucide-react";
+import { LogIn, User } from "lucide-react";
+
+import { CartButton } from "@/features/cart/components/CartButton";
 
 type Props = {
   children: ReactNode;
@@ -46,12 +48,7 @@ export function LandingPage({ children }: Props) {
           </Link>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/carrito"
-              className="rounded-full border border-cyan-400/30 bg-black px-4 py-3 text-cyan-200 shadow-[0_0_25px_rgba(34,211,238,0.20)] transition hover:bg-cyan-400/10"
-            >
-              <ShoppingCart size={22} />
-            </Link>
+            <CartButton />
 
             <Link
               href="/login"
@@ -83,9 +80,7 @@ export function LandingPage({ children }: Props) {
           <div className="relative flex min-h-[620px] items-center justify-center px-2">
             <div
               className={`absolute w-full max-w-[980px] transition-all duration-1000 xl:max-w-[1100px] 2xl:max-w-[1180px] ${
-                showLogo
-                  ? "opacity-100 scale-100"
-                  : "pointer-events-none opacity-0 scale-95"
+                showLogo ? "opacity-100 scale-100" : "pointer-events-none opacity-0 scale-95"
               }`}
             >
               <Image

@@ -1,47 +1,96 @@
+﻿import Link from "next/link";
+
 import { AuthShell } from "@/components/auth/AuthShell";
 import { loginAction } from "@/features/auth/actions/login-action";
 
-export default function LoginPage({
+type LoginPageProps = {
+  searchParams?: Promise<{
+    error?: string;
+  }>;
+};
+
+export default async function LoginPage({
   searchParams,
-}: {
-  searchParams?: { error?: string };
-}) {
-  const error = searchParams?.error;
+}: LoginPageProps) {
+  const params = await searchParams;
+  const error = params?.error;
+
+  function getErrorMessage() {
+    switch (error) {
+      case "missing_fields":
+        return "Ingresa tu correo y contraseña.";
+
+      case "profile_error":
+        return "No fue posible cargar tu perfil. Intenta nuevamente.";
+
+      case "invalid_credentials":
+        return "Correo o contraseña incorrectos.";
+
+      default:
+        return null;
+    }
+  }
+
+  const errorMessage = getErrorMessage();
 
   return (
     <AuthShell
       title="Bienvenido de nuevo"
-      subtitle="Ingresa al panel de administración de Mapache 3D GT."
+      subtitle="Ingresa a tu cuenta de Mapache 3D GT."
     >
-      {error && (
+      {errorMessage ? (
         <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-          {error === "missing_fields"
-            ? "Ingresa tu correo y contraseña."
-            : "Correo o contraseña incorrectos."}
+          {errorMessage}
         </div>
-      )}
+      ) : null}
 
       <form action={loginAction} className="space-y-4">
-        <input
-          name="email"
-          type="email"
-          placeholder="Correo electrónico"
-          className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-        />
+        <label className="block space-y-2">
+          <span className="text-sm text-white/70">
+            Correo electrónico
+          </span>
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Contraseña"
-          className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none"
-        />
+          <input
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            placeholder="correo@ejemplo.com"
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20"
+          />
+        </label>
+
+        <label className="block space-y-2">
+          <span className="text-sm text-white/70">
+            Contraseña
+          </span>
+
+          <input
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            placeholder="Tu contraseña"
+            className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20"
+          />
+        </label>
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-black"
+          className="w-full rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-3 font-semibold text-white shadow-lg shadow-violet-950/40 transition hover:brightness-110"
         >
           Iniciar sesión
         </button>
+
+        <p className="text-center text-sm text-white/50">
+          ¿Aún no tienes cuenta?{" "}
+          <Link
+            href="/register"
+            className="font-medium text-violet-300 transition hover:text-violet-200"
+          >
+            Crear cuenta
+          </Link>
+        </p>
       </form>
     </AuthShell>
   );
