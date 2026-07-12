@@ -6,6 +6,7 @@ import { loginAction } from "@/features/auth/actions/login-action";
 type LoginPageProps = {
   searchParams?: Promise<{
     error?: string;
+    redirectTo?: string;
   }>;
 };
 
@@ -13,7 +14,17 @@ export default async function LoginPage({
   searchParams,
 }: LoginPageProps) {
   const params = await searchParams;
+
   const error = params?.error;
+
+  /*
+   * Página a la que regresaremos después del login.
+   * Si no viene especificada usamos /account.
+   */
+  const redirectTo =
+    params?.redirectTo && params.redirectTo.startsWith("/")
+      ? params.redirectTo
+      : "/account";
 
   function getErrorMessage() {
     switch (error) {
@@ -45,6 +56,14 @@ export default async function LoginPage({
       ) : null}
 
       <form action={loginAction} className="space-y-4">
+
+        {/* Mantiene la página de destino */}
+        <input
+          type="hidden"
+          name="redirectTo"
+          value={redirectTo}
+        />
+
         <label className="block space-y-2">
           <span className="text-sm text-white/70">
             Correo electrónico
@@ -85,7 +104,9 @@ export default async function LoginPage({
         <p className="text-center text-sm text-white/50">
           ¿Aún no tienes cuenta?{" "}
           <Link
-            href="/register"
+            href={`/register?redirectTo=${encodeURIComponent(
+              redirectTo
+            )}`}
             className="font-medium text-violet-300 transition hover:text-violet-200"
           >
             Crear cuenta

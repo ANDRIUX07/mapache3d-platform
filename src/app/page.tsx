@@ -1,17 +1,29 @@
 import { LandingPage } from "@/components/landing/LandingPage";
 import { FeaturedProducts } from "@/features/products/components/FeaturedProducts";
-import { CartButton } from "@/features/cart/components/CartButton";
+import { getCurrentUser } from "@/features/auth/actions/get-current-user";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getCurrentUser();
+
+  const currentUser = user
+    ? {
+        username:
+          typeof user.user_metadata?.username === "string"
+            ? user.user_metadata.username
+            : null,
+
+        firstName:
+          typeof user.user_metadata?.first_name === "string"
+            ? user.user_metadata.first_name
+            : null,
+
+        email: user.email ?? null,
+      }
+    : null;
+
   return (
-    <>
-      <div className="fixed top-6 right-6 z-50">
-        <CartButton />
-      </div>
-
-      <LandingPage>
-        <FeaturedProducts />
-      </LandingPage>
-    </>
+    <LandingPage currentUser={currentUser}>
+      <FeaturedProducts />
+    </LandingPage>
   );
 }

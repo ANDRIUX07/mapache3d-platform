@@ -1,10 +1,14 @@
-export default function CheckoutPage() {
-  return (
-    <main className="min-h-screen bg-[#090014] text-white p-8">
-      <h1 className="text-4xl font-bold text-violet-300">Checkout</h1>
-      <p className="mt-4 text-white/70">
-        Formulario de pedido, datos del cliente y método de entrega.
-      </p>
-    </main>
-  );
+import { redirect } from "next/navigation";
+
+import { CheckoutForm } from "@/features/checkout/components/CheckoutForm";
+import { getCurrentUser } from "@/features/auth/actions/get-current-user";
+
+export default async function CheckoutPage() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/login?redirectTo=/checkout");
+  }
+
+  return <CheckoutForm />;
 }

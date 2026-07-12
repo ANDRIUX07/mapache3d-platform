@@ -32,25 +32,38 @@ export async function proxy(request: NextRequest) {
     }
   );
 
+  const pathname = request.nextUrl.pathname;
+
+  /*
+   * La landing, productos, carrito, contacto y páginas públicas
+   * no requieren autenticación.
+   */
+  const isAdminRoute = pathname.startsWith("/admin");
+
+  if (!isAdminRoute) {
+    return response;
+  }
+
+  /*
+   * Solo consultamos el usuario cuando intenta entrar a /admin.
+   */
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-
-  if (!pathname.startsWith("/admin")) {
-    return response;
-  }
 
   if (!user) {
     const loginUrl = request.nextUrl.clone();
 
     loginUrl.pathname = "/login";
-    loginUrl.searchParams.set("redirectedFrom", pathname);
+    loginUrl.search = "";
+    loginUrl.searchParams.set("redirectTo", pathname);
 
     return NextResponse.redirect(loginUrl);
   }
 
+  /*
+   * Verificamos que el usuario tenga rol de administrador.
+   */
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role")
