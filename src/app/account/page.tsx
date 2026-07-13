@@ -8,9 +8,10 @@ export default async function AccountPage() {
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (userError || !user) {
     redirect("/login?redirectedFrom=/account");
   }
 
@@ -19,10 +20,6 @@ export default async function AccountPage() {
     .select("first_name, email, role")
     .eq("id", user.id)
     .maybeSingle();
-
-  if (profile?.role === "admin") {
-    redirect("/admin");
-  }
 
   const firstName =
     profile?.first_name?.trim() ||
@@ -34,10 +31,13 @@ export default async function AccountPage() {
     user.email ||
     "";
 
+  const isAdmin = profile?.role === "admin";
+
   return (
     <AccountDashboard
       firstName={firstName}
       email={email}
+      isAdmin={isAdmin}
     />
   );
 }
