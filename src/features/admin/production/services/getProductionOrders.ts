@@ -6,6 +6,12 @@ import type {
   OrderItem,
 } from "@/features/orders/types";
 
+interface ProductProductionRow {
+  weight_grams: number | string | null;
+  print_time_minutes: number | string | null;
+  material: string | null;
+}
+
 interface OrderItemRow {
   id: string;
   order_id: string;
@@ -19,6 +25,7 @@ interface OrderItemRow {
   color: string | null;
   personalization: string | null;
   created_at: string;
+  products?: ProductProductionRow | ProductProductionRow[] | null;
 }
 
 interface OrderRow {
@@ -42,7 +49,42 @@ interface OrderRow {
   order_items?: OrderItemRow[] | null;
 }
 
-function mapOrderItem(row: OrderItemRow): OrderItem {
+export interface ProductionOrderItem extends OrderItem {
+  unitWeightGrams: number;
+  totalWeightGrams: number;
+  unitPrintTimeMinutes: number;
+  totalPrintTimeMinutes: number;
+}
+
+export interface ProductionOrder extends AdminOrder {
+  items: ProductionOrderItem[];
+  totalUnits: number;
+  totalWeightGrams: number;
+  totalPrintTimeMinutes: number;
+}
+
+function getProduct(
+  products: OrderItemRow["products"]
+): ProductProductionRow | null {
+  if (!products) {
+    return null;
+  }
+
+  if (Array.isArray(products)) {
+    return products[0] ?? null;
+  }
+
+  return products;
+}
+
+function mapOrderItem(row: OrderItemRow): ProductionOrderItem {
+  const product = getProduct(row.products);
+
+  const unitWeightGrams = Number(product?.weight_grams ?? 0);
+  const unitPrintTimeMinutes = Number(
+    product?.print_time_minutes ?? 0
+  );
+
   return {
     id: row.id,
     orderId: row.order_id,
@@ -52,14 +94,21 @@ function mapOrderItem(row: OrderItemRow): OrderItem {
     unitPrice: Number(row.unit_price),
     quantity: row.quantity,
     subtotal: Number(row.subtotal),
-    material: row.material,
+    material: row.material ?? product?.material ?? null,
     color: row.color,
     personalization: row.personalization,
     createdAt: row.created_at,
+    unitWeightGrams,
+    totalWeightGrams: unitWeightGrams * row.quantity,
+    unitPrintTimeMinutes,
+    totalPrintTimeMinutes:
+      unitPrintTimeMinutes * row.quantity,
   };
 }
 
-function mapOrder(row: OrderRow): AdminOrder {
+function mapOrder(row: OrderRow): ProductionOrder {
+  const items = (row.order_items ?? []).map(mapOrderItem);
+
   return {
     id: row.id,
     orderNumber: row.order_number,
@@ -78,11 +127,25 @@ function mapOrder(row: OrderRow): AdminOrder {
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    items: (row.order_items ?? []).map(mapOrderItem),
+    items,
+    totalUnits: items.reduce(
+      (total, item) => total + item.quantity,
+      0
+    ),
+    totalWeightGrams: items.reduce(
+      (total, item) => total + item.totalWeightGrams,
+      0
+    ),
+    totalPrintTimeMinutes: items.reduce(
+      (total, item) => total + item.totalPrintTimeMinutes,
+      0
+    ),
   };
 }
 
-export async function getProductionOrders(): Promise<AdminOrder[]> {
+export async function getProductionOrders(): Promise<
+  ProductionOrder[]
+> {
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -101,7 +164,12 @@ export async function getProductionOrders(): Promise<AdminOrder[]> {
         material,
         color,
         personalization,
-        created_at
+        created_at,
+        products (
+          weight_grams,
+          print_time_minutes,
+          material
+        )
       )
     `)
     .in("status", [

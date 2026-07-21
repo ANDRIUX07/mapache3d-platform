@@ -1,23 +1,48 @@
 import Link from "next/link";
 import {
-  CheckCircle2,
   Clock3,
   PackageCheck,
   Printer,
+  Scale,
+  Timer,
 } from "lucide-react";
 
-import type { AdminOrder } from "@/features/admin/orders/types";
+import type { ProductionOrder } from "@/features/admin/production/services/getProductionOrders";
 import { OrderStatusBadge } from "@/features/orders/components/OrderStatusBadge";
 
 interface ProductionBoardProps {
-  orders: AdminOrder[];
+  orders: ProductionOrder[];
 }
 
-function getTotalUnits(order: AdminOrder) {
-  return order.items.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
+function formatPrintTime(totalMinutes: number) {
+  if (totalMinutes <= 0) {
+    return "Sin tiempo";
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = Math.round(totalMinutes % 60);
+
+  if (hours === 0) {
+    return `${minutes} min`;
+  }
+
+  if (minutes === 0) {
+    return `${hours} h`;
+  }
+
+  return `${hours} h ${minutes} min`;
+}
+
+function formatWeight(totalGrams: number) {
+  if (totalGrams <= 0) {
+    return "Sin peso";
+  }
+
+  if (totalGrams >= 1000) {
+    return `${(totalGrams / 1000).toFixed(2)} kg`;
+  }
+
+  return `${totalGrams.toFixed(1)} g`;
 }
 
 function ProductionColumn({
@@ -29,7 +54,7 @@ function ProductionColumn({
   title: string;
   description: string;
   icon: typeof Clock3;
-  orders: AdminOrder[];
+  orders: ProductionOrder[];
 }) {
   return (
     <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
@@ -75,26 +100,81 @@ function ProductionColumn({
                 <OrderStatusBadge status={order.status} />
               </div>
 
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 space-y-3">
                 {order.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between gap-3 text-sm"
+                    className="rounded-xl border border-white/5 bg-white/[0.02] p-3"
                   >
-                    <span className="text-white/65">
-                      {item.productName}
-                    </span>
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="font-medium text-white/70">
+                        {item.productName}
+                      </span>
 
-                    <span className="font-bold text-violet-200">
-                      x{item.quantity}
-                    </span>
+                      <span className="font-bold text-violet-200">
+                        x{item.quantity}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-xs text-white/40">
+                      <span>
+                        {formatWeight(item.totalWeightGrams)}
+                      </span>
+
+                      <span>
+                        {formatPrintTime(item.totalPrintTimeMinutes)}
+                      </span>
+
+                      {item.material && (
+                        <span>{item.material}</span>
+                      )}
+
+                      {item.color && (
+                        <span>{item.color}</span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-4 border-t border-white/10 pt-3 text-xs text-white/40">
-                {getTotalUnits(order)} unidad
-                {getTotalUnits(order) === 1 ? "" : "es"}
+              <div className="mt-4 grid grid-cols-3 gap-2 border-t border-white/10 pt-4">
+                <div className="rounded-xl bg-white/[0.03] p-2 text-center">
+                  <p className="text-[10px] uppercase tracking-wide text-white/35">
+                    Unidades
+                  </p>
+
+                  <p className="mt-1 text-sm font-black text-white">
+                    {order.totalUnits}
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-white/[0.03] p-2 text-center">
+                  <div className="flex items-center justify-center gap-1 text-white/35">
+                    <Scale size={11} />
+
+                    <p className="text-[10px] uppercase tracking-wide">
+                      Material
+                    </p>
+                  </div>
+
+                  <p className="mt-1 text-sm font-black text-violet-200">
+                    {formatWeight(order.totalWeightGrams)}
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-white/[0.03] p-2 text-center">
+                  <div className="flex items-center justify-center gap-1 text-white/35">
+                    <Timer size={11} />
+
+                    <p className="text-[10px] uppercase tracking-wide">
+                      Tiempo
+                    </p>
+                  </div>
+
+                  <p className="mt-1 text-sm font-black text-orange-200">
+                    {formatPrintTime(order.totalPrintTimeMinutes)}
+                  </p>
+                </div>
               </div>
             </Link>
           ))
