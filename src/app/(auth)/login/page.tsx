@@ -56,7 +56,6 @@ export default async function LoginPage({
       ) : null}
 
       <form action={loginAction} className="space-y-4">
-
         {/* Mantiene la página de destino */}
         <input
           type="hidden"
@@ -93,6 +92,15 @@ export default async function LoginPage({
             className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20"
           />
         </label>
+
+        <div className="flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
 
         <button
           type="submit"
