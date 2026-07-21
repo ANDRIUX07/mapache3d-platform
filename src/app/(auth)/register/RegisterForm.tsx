@@ -234,7 +234,7 @@ export function RegisterForm() {
               onChange={(event) =>
                 setFirstName(event.target.value)
               }
-              placeholder="Roberto"
+              placeholder="Nombre"
               required
               disabled={isSubmitting}
               className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20 disabled:cursor-not-allowed disabled:opacity-60"
@@ -254,7 +254,7 @@ export function RegisterForm() {
               onChange={(event) =>
                 setLastName(event.target.value)
               }
-              placeholder="Valdez"
+              placeholder="Apellido"
               required
               disabled={isSubmitting}
               className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20 disabled:cursor-not-allowed disabled:opacity-60"
@@ -275,7 +275,7 @@ export function RegisterForm() {
             onChange={(event) =>
               setUsername(event.target.value)
             }
-            placeholder="roberto3d"
+            placeholder="Elige un usuario"
             required
             minLength={3}
             maxLength={24}
