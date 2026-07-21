@@ -30,9 +30,8 @@ export default function ForgotPasswordPage() {
       );
 
       if (error) {
-        setErrorMessage(
-          "No fue posible enviar el enlace de recuperación. Intenta nuevamente."
-        );
+        console.error("Supabase password reset error:", error);
+        setErrorMessage(error.message);
         return;
       }
 
@@ -41,7 +40,9 @@ export default function ForgotPasswordPage() {
       );
 
       setEmail("");
-    } catch {
+    } catch (error) {
+      console.error("Unexpected password reset error:", error);
+
       setErrorMessage(
         "Ocurrió un error inesperado. Intenta nuevamente."
       );
