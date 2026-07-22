@@ -22,11 +22,19 @@ type Props = {
   currentUser: CurrentUser | null;
 };
 
-const menuItems = [
+type MenuItem = {
+  label: string;
+  href: string;
+  text: string;
+  icon?: string;
+  image?: string;
+};
+
+const menuItems: MenuItem[] = [
   {
     label: "Productos",
     href: "/productos",
-    icon: "📦",
+    image: "/images/menu/productos.png",
     text: "Descubre accesorios 3D",
   },
   {
@@ -146,7 +154,7 @@ export function LandingPage({
       </header>
 
       {/* Contenido principal */}
-      <section className="relative z-10 flex min-h-screen flex-col px-4 pb-34 pt-24 md:px-8">
+      <section className="relative z-10 flex min-h-screen flex-col px-4 pb-40 pt-24 md:px-8">
         <div className="mx-auto grid w-full max-w-[1750px] flex-1 items-center gap-4 lg:grid-cols-[160px_1fr_170px] xl:grid-cols-[180px_1fr_190px]">
           {/* Información lateral izquierda */}
           <aside className="hidden space-y-8 lg:block">
@@ -223,11 +231,23 @@ export function LandingPage({
             <Link
               key={item.label}
               href={item.href}
-              className="group rounded-[1.2rem] border border-white/10 bg-black px-2 py-3 shadow-[0_0_25px_rgba(168,85,247,0.16)] transition hover:-translate-y-1 hover:border-fuchsia-400/70 hover:bg-white/5 sm:rounded-[1.6rem] sm:px-3 sm:py-4"
+              className="group relative overflow-hidden rounded-[1.2rem] border border-white/10 bg-black px-2 py-3 shadow-[0_0_25px_rgba(168,85,247,0.16)] transition hover:-translate-y-1 hover:border-fuchsia-400/70 hover:bg-white/5 sm:rounded-[1.6rem] sm:px-3 sm:py-4"
             >
-              <div className="text-2xl transition group-hover:scale-110 sm:text-3xl">
-                {item.icon}
-              </div>
+              {item.image ? (
+                <div className="relative mx-auto h-16 w-16 transition duration-300 group-hover:scale-110 sm:h-20 sm:w-20">
+                  <Image
+                    src={item.image}
+                    alt={`Icono de ${item.label}`}
+                    fill
+                    sizes="80px"
+                    className="object-contain drop-shadow-[0_0_14px_rgba(168,85,247,0.55)]"
+                  />
+                </div>
+              ) : (
+                <div className="text-2xl transition group-hover:scale-110 sm:text-3xl">
+                  {item.icon}
+                </div>
+              )}
 
               <div className="mt-2 text-[10px] font-black uppercase text-white sm:text-sm">
                 {item.label}

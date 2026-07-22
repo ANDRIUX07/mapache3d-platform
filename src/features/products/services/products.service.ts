@@ -25,5 +25,24 @@ export async function getProducts() {
     throw new Error(error.message);
   }
 
-  return data;
+  return data ?? [];
+}
+
+export async function getCategories() {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .select(`
+      id,
+      name,
+      slug
+    `)
+    .order("name", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data ?? [];
 }
