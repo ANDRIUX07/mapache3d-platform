@@ -50,17 +50,12 @@ export default function ForgotPasswordPage() {
         );
 
       if (error) {
-        console.error(
-          "Supabase password reset error:",
-          error
-        );
+  console.error(error);
 
-        setErrorMessage(
-          "No fue posible enviar el enlace de recuperación. Verifica el correo e intenta nuevamente."
-        );
+  setErrorMessage(error.message);
 
-        return;
-      }
+  return;
+}
 
       setSuccessMessage(
         "Si existe una cuenta asociada a ese correo, recibirás un enlace para restablecer tu contraseña."
