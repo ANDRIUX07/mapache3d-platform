@@ -12,7 +12,9 @@ export default function ForgotPasswordPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
     setLoading(true);
@@ -22,16 +24,41 @@ export default function ForgotPasswordPage() {
     try {
       const normalizedEmail = email.trim().toLowerCase();
 
-      const { error } = await supabase.auth.resetPasswordForEmail(
-        normalizedEmail,
-        {
-          redirectTo: `${window.location.origin}/reset-password`,
-        }
+      if (!normalizedEmail) {
+        setErrorMessage(
+          "Ingresa tu correo electrónico."
+        );
+        return;
+      }
+
+      const callbackUrl = new URL(
+        "/auth/callback",
+        window.location.origin
       );
 
+      callbackUrl.searchParams.set(
+        "next",
+        "/reset-password"
+      );
+
+      const { error } =
+        await supabase.auth.resetPasswordForEmail(
+          normalizedEmail,
+          {
+            redirectTo: callbackUrl.toString(),
+          }
+        );
+
       if (error) {
-        console.error("Supabase password reset error:", error);
-        setErrorMessage(error.message);
+        console.error(
+          "Supabase password reset error:",
+          error
+        );
+
+        setErrorMessage(
+          "No fue posible enviar el enlace de recuperación. Verifica el correo e intenta nuevamente."
+        );
+
         return;
       }
 
@@ -41,7 +68,10 @@ export default function ForgotPasswordPage() {
 
       setEmail("");
     } catch (error) {
-      console.error("Unexpected password reset error:", error);
+      console.error(
+        "Unexpected password reset error:",
+        error
+      );
 
       setErrorMessage(
         "Ocurrió un error inesperado. Intenta nuevamente."
@@ -56,7 +86,10 @@ export default function ForgotPasswordPage() {
       title="Recuperar contraseña"
       subtitle="Ingresa el correo electrónico con el que creaste tu cuenta."
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-5"
+      >
         <label className="block space-y-2">
           <span className="text-sm text-white/70">
             Correo electrónico
@@ -68,24 +101,26 @@ export default function ForgotPasswordPage() {
             required
             autoComplete="email"
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={(event) =>
+              setEmail(event.target.value)
+            }
             placeholder="correo@ejemplo.com"
             disabled={loading}
             className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-violet-400/60 focus:ring-2 focus:ring-violet-500/20 disabled:cursor-not-allowed disabled:opacity-60"
           />
         </label>
 
-        {successMessage ? (
+        {successMessage && (
           <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
             {successMessage}
           </div>
-        ) : null}
+        )}
 
-        {errorMessage ? (
+        {errorMessage && (
           <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
             {errorMessage}
           </div>
-        ) : null}
+        )}
 
         <button
           type="submit"
