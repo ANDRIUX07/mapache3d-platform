@@ -8,8 +8,10 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   LoaderCircle,
+  MapPin,
   MessageCircle,
   ShoppingCart,
+  Truck,
 } from "lucide-react";
 
 import { useCart } from "@/features/cart/hooks/useCart";
@@ -18,6 +20,9 @@ import { supabase } from "@/lib/supabase/client";
 
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
+
+const DELIVERY_METHOD = "Envío a domicilio";
+const SHIPPING_COST = 42;
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -30,13 +35,13 @@ export function CheckoutForm() {
 
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [deliveryMethod, setDeliveryMethod] =
-    useState("Por coordinar");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   const [notes, setNotes] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const displayedTotal = subtotal + SHIPPING_COST;
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
@@ -57,6 +62,11 @@ export function CheckoutForm() {
 
     if (!customerPhone.trim()) {
       setError("Ingresa tu número de teléfono.");
+      return;
+    }
+
+    if (!deliveryAddress.trim()) {
+      setError("Ingresa la dirección de entrega.");
       return;
     }
 
@@ -100,14 +110,13 @@ export function CheckoutForm() {
         userId: user.id,
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
-        deliveryMethod,
-        deliveryAddress:
-          deliveryAddress.trim() || undefined,
+        deliveryMethod: DELIVERY_METHOD,
+        deliveryAddress: deliveryAddress.trim(),
         notes: notes.trim() || undefined,
         subtotal,
-        shippingCost: 0,
+        shippingCost: SHIPPING_COST,
         discount: 0,
-        total: subtotal,
+        total: displayedTotal,
         items: items.map((item) => ({
           productId: item.id,
           productName: item.name,
@@ -137,14 +146,13 @@ export function CheckoutForm() {
         productsMessage,
         "",
         `Subtotal: Q ${order.subtotal.toFixed(2)}`,
+        `Envío: Q ${order.shippingCost.toFixed(2)}`,
         `Total: Q ${order.total.toFixed(2)}`,
         "",
         `Nombre: ${customerName.trim()}`,
         `Teléfono: ${customerPhone.trim()}`,
-        `Entrega: ${deliveryMethod}`,
-        deliveryAddress.trim()
-          ? `Dirección: ${deliveryAddress.trim()}`
-          : null,
+        `Entrega: ${DELIVERY_METHOD}`,
+        `Dirección: ${deliveryAddress.trim()}`,
         notes.trim()
           ? `Notas: ${notes.trim()}`
           : null,
@@ -233,6 +241,7 @@ export function CheckoutForm() {
                   }
                   placeholder="Ejemplo: Roberto Valdez"
                   autoComplete="name"
+                  required
                   className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-violet-500"
                 />
               </div>
@@ -254,45 +263,45 @@ export function CheckoutForm() {
                   }
                   placeholder="Ejemplo: 5555 5555"
                   autoComplete="tel"
+                  required
                   className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-violet-500"
                 />
               </div>
 
               <div>
-                <label
-                  htmlFor="deliveryMethod"
-                  className="mb-2 block text-sm font-bold text-white/70"
-                >
+                <p className="mb-2 block text-sm font-bold text-white/70">
                   Método de entrega
-                </label>
+                </p>
 
-                <select
-                  id="deliveryMethod"
-                  value={deliveryMethod}
-                  onChange={(event) =>
-                    setDeliveryMethod(event.target.value)
-                  }
-                  className="w-full rounded-2xl border border-white/10 bg-[#12091d] px-4 py-3 text-white outline-none transition focus:border-violet-500"
-                >
-                  <option value="Por coordinar">
-                    Por coordinar
-                  </option>
+                <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300">
+                      <Truck size={24} />
+                    </div>
 
-                  <option value="Envío a domicilio">
-                    Envío a domicilio
-                  </option>
+                    <div>
+                      <p className="font-black text-white">
+                        Envío a domicilio
+                      </p>
 
-                  <option value="Recoger personalmente">
-                    Recoger personalmente
-                  </option>
-                </select>
+                      <p className="mt-1 text-sm text-white/60">
+                        Tarifa fija para toda Guatemala
+                      </p>
+                    </div>
+
+                    <p className="ml-auto font-black text-orange-400">
+                      Q {SHIPPING_COST.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div>
                 <label
                   htmlFor="deliveryAddress"
-                  className="mb-2 block text-sm font-bold text-white/70"
+                  className="mb-2 flex items-center gap-2 text-sm font-bold text-white/70"
                 >
+                  <MapPin size={16} />
                   Dirección de entrega
                 </label>
 
@@ -304,6 +313,8 @@ export function CheckoutForm() {
                   }
                   placeholder="Departamento, municipio, zona y referencias"
                   rows={3}
+                  autoComplete="street-address"
+                  required
                   className="w-full resize-none rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-white outline-none transition placeholder:text-white/25 focus:border-violet-500"
                 />
               </div>
@@ -375,14 +386,36 @@ export function CheckoutForm() {
               )}
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-5">
-              <span className="text-white/60">
-                Subtotal
-              </span>
+            <div className="mt-6 space-y-3 border-t border-white/10 pt-5">
+              <div className="flex items-center justify-between">
+                <span className="text-white/60">
+                  Subtotal
+                </span>
 
-              <span className="text-3xl font-black text-orange-400">
-                Q {subtotal.toFixed(2)}
-              </span>
+                <span className="font-bold text-white">
+                  Q {subtotal.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-white/60">
+                  Envío a domicilio
+                </span>
+
+                <span className="font-bold text-white">
+                  Q {SHIPPING_COST.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-white/10 pt-4">
+                <span className="font-black text-white">
+                  Total
+                </span>
+
+                <span className="text-3xl font-black text-orange-400">
+                  Q {displayedTotal.toFixed(2)}
+                </span>
+              </div>
             </div>
 
             <button
